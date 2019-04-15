@@ -1,0 +1,20 @@
+{
+  "name": "daita/nc-small-php-tools",
+  "description": "Nextcloud: Small PHP Tools",
+  "minimum-stability": "stable",
+  "license": "AGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Maxence Lange",
+      "email": "maxence@artificial-owl.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "daita\\NcSmallPhpTools\\": "lib/"
+    }
+  }
+}

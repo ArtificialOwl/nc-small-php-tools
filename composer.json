@@ -1,7 +1,6 @@
 {
   "name": "daita/nc-small-php-tools",
   "description": "Nextcloud: Small PHP Tools",
-  "minimum-stability": "stable",
   "license": "AGPL-3.0-or-later",
   "authors": [
     {

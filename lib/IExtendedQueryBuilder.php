@@ -28,7 +28,7 @@ declare(strict_types=1);
  */
 
 
-namespace daita\NcSmallPhpTools\Db;
+namespace daita\NcSmallPhpTools;
 
 
 use Exception;

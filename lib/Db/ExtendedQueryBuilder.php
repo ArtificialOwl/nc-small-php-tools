@@ -44,7 +44,7 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
  *
  * @package daita\NcSmallPhpTools\Db
  */
-class ExtendedQueryBuilder extends QueryBuilder {
+class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder {
 
 
 	/** @var string */
@@ -56,7 +56,7 @@ class ExtendedQueryBuilder extends QueryBuilder {
 	 *
 	 * @return ExtendedQueryBuilder
 	 */
-	public function setDefaultSelectAlias(string $alias): ExtendedQueryBuilder {
+	public function setDefaultSelectAlias(string $alias): IExtendedQueryBuilder {
 		$this->defaultSelectAlias = $alias;
 
 		return $this;
@@ -77,7 +77,7 @@ class ExtendedQueryBuilder extends QueryBuilder {
 	 *
 	 * @return ExtendedQueryBuilder
 	 */
-	public function limitToId(int $id): ExtendedQueryBuilder {
+	public function limitToId(int $id): IExtendedQueryBuilder {
 		$this->limitToDBFieldInt('id', $id);
 
 		return $this;
@@ -91,7 +91,7 @@ class ExtendedQueryBuilder extends QueryBuilder {
 	 *
 	 * @return ExtendedQueryBuilder
 	 */
-	public function limitToIdString(string $id): ExtendedQueryBuilder {
+	public function limitToIdString(string $id): IExtendedQueryBuilder {
 		$this->limitToDBField('id', $id, false);
 
 		return $this;
@@ -105,7 +105,7 @@ class ExtendedQueryBuilder extends QueryBuilder {
 	 *
 	 * @return ExtendedQueryBuilder
 	 */
-	public function limitToUserId(string $userId): ExtendedQueryBuilder {
+	public function limitToUserId(string $userId): IExtendedQueryBuilder {
 		$this->limitToDBField('user_id', $userId, false);
 
 		return $this;
@@ -120,7 +120,7 @@ class ExtendedQueryBuilder extends QueryBuilder {
 	 * @return ExtendedQueryBuilder
 	 * @throws Exception
 	 */
-	public function limitToCreation(int $delay = 0): ExtendedQueryBuilder {
+	public function limitToCreation(int $delay = 0): IExtendedQueryBuilder {
 		$date = new DateTime('now');
 		$date->sub(new DateInterval('PT' . $delay . 'M'));
 
@@ -136,7 +136,8 @@ class ExtendedQueryBuilder extends QueryBuilder {
 	 * @param bool $cs - case sensitive
 	 * @param string $alias
 	 */
-	public function limitToDBField(string $field, string $value, bool $cs = true, string $alias = ''
+	protected function limitToDBField(
+		string $field, string $value, bool $cs = true, string $alias = ''
 	): void {
 		$expr = $this->exprLimitToDBField($field, $value, $cs, $alias);
 		$this->andWhere($expr);

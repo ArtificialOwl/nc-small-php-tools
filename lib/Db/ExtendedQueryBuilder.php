@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace daita\NcSmallPhpTools\Db;
 
 
+use daita\NcSmallPhpTools\IExtendedQueryBuilder;
 use DateInterval;
 use DateTime;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
@@ -54,7 +55,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	/**
 	 * @param string $alias
 	 *
-	 * @return ExtendedQueryBuilder
+	 * @return IExtendedQueryBuilder
 	 */
 	public function setDefaultSelectAlias(string $alias): IExtendedQueryBuilder {
 		$this->defaultSelectAlias = $alias;

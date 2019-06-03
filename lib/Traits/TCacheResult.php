@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud.
+ * Some small tools for Nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,18 +28,39 @@ declare(strict_types=1);
  */
 
 
-namespace daita\NcSmallPhpTools\Exceptions;
+namespace daita\NcSmallPhpTools\Traits;
 
 
-use Exception;
-
+use daita\NcSmallPhpTools\Model\CacheResult;
 
 /**
- * Class ArrayNotFoundException
+ * Trait TCacheTools
  *
- * @package daita\NcSmallPhpTools\Exceptions
+ * @package daita\NcSmallPhpTools\Traits
  */
-class ArrayNotFoundException extends Exception {
+trait TCacheResult {
+
+
+	/** @var array */
+	private $cachedResult = [];
+
+
+	/**
+	 * @param string $item
+	 *
+	 * @return CacheResult
+	 */
+	protected function cached(string $item): CacheResult {
+		if (array_key_exists($item, $this->cachedResult)) {
+			return $this->cachedResult[$item];
+		}
+
+		$cached = new CacheResult($item);
+		$this->cachedResult[$item] = $cached;
+
+		return $cached;
+	}
+
 
 }
 

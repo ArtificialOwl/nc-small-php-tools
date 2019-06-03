@@ -31,12 +31,15 @@ declare(strict_types=1);
 namespace daita\NcSmallPhpTools\Exceptions;
 
 
+use Exception;
+
+
 /**
  * Class ArrayNotFoundException
  *
  * @package daita\NcSmallPhpTools\Exceptions
  */
-class MalformedArrayException extends \Exception {
+class MalformedArrayException extends Exception {
 
 }
 

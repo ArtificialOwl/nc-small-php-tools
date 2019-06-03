@@ -28,18 +28,19 @@ declare(strict_types=1);
  */
 
 
-namespace daita\NcSmallPhpTools\Exceptions;
-
-
-use Exception;
+namespace daita\NcSmallPhpTools\Model;
 
 
 /**
- * Class ArrayNotFoundException
+ * Class EmptyMockup
  *
- * @package daita\NcSmallPhpTools\Exceptions
+ * @package daita\NcSmallPhpTools\Model
  */
-class ArrayNotFoundException extends Exception {
+class EmptyMockup {
+
+	public function __call($method, $args) {
+	}
 
 }
+
 

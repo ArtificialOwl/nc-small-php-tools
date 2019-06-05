@@ -64,12 +64,6 @@ class InteractiveShell {
 	/** @var IInteractiveShellClient */
 	private $client;
 
-	/** @var string */
-	private $manageCommands = '';
-
-	/** @var string */
-	private $fillCommands = '';
-
 
 	/** @var QuestionHelper */
 	private $helper;
@@ -80,7 +74,7 @@ class InteractiveShell {
 
 	public function __construct(
 		Base $parent, InputInterface $input, OutputInterface $output,
-		IInteractiveShellClient $client, string $manageCommands, string $fillCommands = ''
+		IInteractiveShellClient $client
 	) {
 		$this->helper = $parent->getHelper('question');
 		$this->parent = $parent;
@@ -88,8 +82,6 @@ class InteractiveShell {
 		$this->output = $output;
 
 		$this->client = $client;
-		$this->manageCommands = $manageCommands;
-		$this->fillCommands = $fillCommands;
 	}
 
 

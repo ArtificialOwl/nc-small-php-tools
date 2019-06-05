@@ -32,6 +32,8 @@ namespace daita\NcSmallPhpTools;
 
 
 use daita\NcSmallPhpTools\Exceptions\ShellMissingItemException;
+use daita\NcSmallPhpTools\Exceptions\ShellUnknownCommandException;
+use daita\NcSmallPhpTools\Exceptions\ShellUnknownItemException;
 
 interface IInteractiveShellClient {
 
@@ -49,6 +51,8 @@ interface IInteractiveShellClient {
 	 * @param string $command
 	 *
 	 * @throws ShellMissingItemException
+	 * @throws ShellUnknownCommandException
+	 * @throws ShellUnknownItemException
 	 */
 	public function manageCommand(string $command): void;
 

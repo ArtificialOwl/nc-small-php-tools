@@ -32,6 +32,8 @@ namespace daita\NcSmallPhpTools\Service;
 
 
 use daita\NcSmallPhpTools\Exceptions\ShellMissingItemException;
+use daita\NcSmallPhpTools\Exceptions\ShellUnknownCommandException;
+use daita\NcSmallPhpTools\Exceptions\ShellUnknownItemException;
 use daita\NcSmallPhpTools\IInteractiveShellClient;
 use daita\NcSmallPhpTools\Traits\TStringTools;
 use OC\Core\Command\Base;
@@ -100,15 +102,19 @@ class InteractiveShell {
 
 		$path = '';
 		while (true) {
-			$question = new Question(str_replace('%PATH%', $path, $prompt));
+			$question = new Question(str_replace('%PATH%', $path, $prompt), '');
 
 			$commands = $this->availableCommands($path);
 
 			$question->setAutocompleterValues($commands);
-			$current = trim($this->helper->ask($this->input, $this->output, $question));
-
+			$current = $this->helper->ask($this->input, $this->output, $question);
 			if ($current === 'quit' || $current === 'exit') {
 				exit();
+			}
+
+			if ($current === '?') {
+				$this->listCurrentAvailableCommands($commands);
+				continue;
 			}
 
 			if ($current === '') {
@@ -126,10 +132,14 @@ class InteractiveShell {
 						$path = $tmp;
 					}
 				}
-//			} catch (CommandNotFoundException $e) {
-//				$this->output->writeln('<comment>' . $e->getMessage() . '</comment>');
-//			} catch (Exception $e) {
-//				$this->output->writeln('<error>' . $e->getMessage() . '</error>');
+			} catch (ShellUnknownItemException $e) {
+				$this->output->writeln(
+					'ShellUnknownItemException: <comment>' . $e->getMessage() . '</comment>'
+				);
+			} catch (ShellUnknownCommandException $e) {
+				$this->output->writeln(
+					'ShellUnknownCommandException: <error>' . $e->getMessage() . '</error>'
+				);
 			}
 			$this->output->writeln('');
 		}
@@ -149,14 +159,32 @@ class InteractiveShell {
 				continue;
 			}
 
+			$subPath = explode('.', $path);
 			$list = explode('.', $entry);
+
 			$root = [''];
-			foreach ($list as $sub) {
+			for ($i = 0; $i < sizeof($list); $i++) {
+				$sub = $list[$i];
+				if ($sub === $subPath[$i]) {
+					continue;
+				}
 				$this->parseSubCommand($commands, $root, $sub);
 			}
 		}
 
 		return $commands;
+	}
+
+
+	/**
+	 * @param array $commands
+	 */
+	private function listCurrentAvailableCommands(array $commands) {
+		foreach ($commands as $command) {
+			if (strpos($command, ' ') === false) {
+				$this->output->writeln('<info>' . $command . '</info>');
+			}
+		}
 	}
 
 

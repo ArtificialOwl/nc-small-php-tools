@@ -35,11 +35,11 @@ use Exception;
 
 
 /**
- * Class ArrayNotFoundException
+ * Class ShellMissingItemException
  *
  * @package daita\NcSmallPhpTools\Exceptions
  */
-class MalformedArrayException extends Exception {
+class ShellMissingItemException extends Exception {
 
 }
 

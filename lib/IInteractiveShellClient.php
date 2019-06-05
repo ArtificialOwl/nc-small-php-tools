@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud
+ * Some small tools for Nextcloud.
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
@@ -28,15 +28,29 @@ declare(strict_types=1);
  */
 
 
-namespace daita\NcSmallPhpTools\Service;
+namespace daita\NcSmallPhpTools;
 
 
-/**
- * Class CommandShellService
- *
- * @package daita\NcSmallPhpTools\Service
- */
-class CommandShellService {
+use daita\NcSmallPhpTools\Exceptions\ShellMissingItemException;
+
+interface IInteractiveShellClient {
+
+
+	/**
+	 * @param string $source
+	 * @param string $field
+	 *
+	 * @return string[]
+	 */
+	public function fillCommandList(string $source, string $field): array;
+
+
+	/**
+	 * @param string $command
+	 *
+	 * @throws ShellMissingItemException
+	 */
+	public function manageCommand(string $command): void;
 
 
 }

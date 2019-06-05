@@ -91,7 +91,7 @@ class InteractiveShell {
 	 * @param array $commands
 	 */
 	public function setCommands(array $commands): void {
-		$this->commands = $commands;
+		$this->commands = array_merge($commands, ['quit', 'help']);
 	}
 
 
@@ -108,11 +108,11 @@ class InteractiveShell {
 
 			$question->setAutocompleterValues($commands);
 			$current = $this->helper->ask($this->input, $this->output, $question);
-			if ($current === 'quit' || $current === 'exit') {
+			if ($current === 'quit' || $current === 'q' || $current === 'exit') {
 				exit();
 			}
 
-			if ($current === '?') {
+			if ($current === '?' || $current === 'help') {
 				$this->listCurrentAvailableCommands($commands);
 				continue;
 			}
@@ -133,15 +133,11 @@ class InteractiveShell {
 					}
 				}
 			} catch (ShellUnknownItemException $e) {
-				$this->output->writeln(
-					'ShellUnknownItemException: <comment>' . $e->getMessage() . '</comment>'
-				);
+				$this->output->writeln('<comment>' . $command . '</comment>: command not found');
 			} catch (ShellUnknownCommandException $e) {
-				$this->output->writeln(
-					'ShellUnknownCommandException: <error>' . $e->getMessage() . '</error>'
-				);
+				$this->output->writeln('<comment>Use \'?\' to list available commands</comment>');
 			}
-			$this->output->writeln('');
+//			$this->output->writeln('');
 		}
 	}
 

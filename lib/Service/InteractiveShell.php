@@ -218,10 +218,39 @@ class InteractiveShell {
 
 
 	/**
+	 * @param string $asking
+	 * @param string $default
+	 * @param array $range
+	 *
+	 * @return string
+	 */
+	public function asking(string $asking, string $default = '', array $range = []): string {
+		while (true) {
+			$question = new Question('- <info>' . $asking . '</info>: ', $default);
+			$question->setAutocompleterValues($range);
+			$answer = $this->helper->ask($this->input, $this->output, $question);
+			if (empty($range) || in_array($answer, $range)) {
+				return $answer;
+			}
+
+			$this->output->writeln('Unknown value');
+		}
+
+
+		return '';
+	}
+
+
+	/**
+	 * @param string $action
+	 *
+	 * @param bool $default
+	 *
 	 * @throws ShellConfirmationException
 	 */
-	public function confirming() {
-		$confirm = new ConfirmationQuestion('Continue with this action?', false);
+	public function confirming(string $action = 'Continue with this action?', bool $default = false
+	) {
+		$confirm = new ConfirmationQuestion($action, $default);
 		if (!$this->helper->ask($this->input, $this->output, $confirm)) {
 			throw new ShellConfirmationException();
 		}

@@ -32,6 +32,7 @@ namespace daita\NcSmallPhpTools\Service;
 
 
 use daita\NcSmallPhpTools\Exceptions\ShellConfirmationException;
+use daita\NcSmallPhpTools\Exceptions\ShellMissingCommandException;
 use daita\NcSmallPhpTools\Exceptions\ShellMissingItemException;
 use daita\NcSmallPhpTools\Exceptions\ShellUnknownCommandException;
 use daita\NcSmallPhpTools\Exceptions\ShellUnknownItemException;
@@ -104,12 +105,13 @@ class InteractiveShell {
 
 		$path = '';
 		while (true) {
-			$question = new Question(str_replace('%PATH%', $path, $prompt), '');
+			$question = new Question(trim(str_replace('%PATH%', $path, $prompt)) . ' ', '');
 
 			$commands = $this->availableCommands($path);
 
 			$question->setAutocompleterValues($commands);
-			$current = $this->helper->ask($this->input, $this->output, $question);
+			$current = strtolower($this->helper->ask($this->input, $this->output, $question));
+
 			if ($current === 'quit' || $current === 'q' || $current === 'exit') {
 				exit();
 			}
@@ -121,23 +123,27 @@ class InteractiveShell {
 
 			if ($current === '') {
 				$path = '';
+				continue;
 			}
 
 			$command = ($path === '') ? $current : str_replace('.', ' ', $path) . ' ' . $current;
 
 			try {
 				$this->client->manageCommand($command);
-			} catch (ShellMissingItemException $e) {
+			} catch (ShellMissingCommandException $e) {
 				foreach ($this->commands as $cmd) {
 					$tmp = trim($this->commonPart(str_replace(' ', '.', $command), $cmd), '.');
 					if (strlen($tmp) > strlen($path)) {
 						$path = $tmp;
 					}
 				}
+			} catch (ShellMissingItemException $e) {
+				$this->output->writeln('<comment>' . $command . '</comment>: missing item(s)');
 			} catch (ShellUnknownItemException $e) {
-				$this->output->writeln('<comment>' . $command . '</comment>: command not found');
+				$this->output->writeln('<comment>' . $current . '</comment>: unknown item');
 			} catch (ShellUnknownCommandException $e) {
-				$this->output->writeln('<comment>Use \'?\' to list available commands</comment>');
+				$this->output->writeln('<comment>' . $command . '</comment>: command not found');
+//				$this->output->writeln('<comment>Use \'?\' to list available commands</comment>');
 			}
 //			$this->output->writeln('');
 		}
@@ -226,16 +232,15 @@ class InteractiveShell {
 	 */
 	public function asking(string $asking, string $default = '', array $range = []): string {
 		while (true) {
-			$question = new Question('- <info>' . $asking . '</info>: ', $default);
+			$question = new Question('> <info>' . $asking . '</info>: ', $default);
 			$question->setAutocompleterValues($range);
 			$answer = $this->helper->ask($this->input, $this->output, $question);
 			if (empty($range) || in_array($answer, $range)) {
 				return $answer;
 			}
 
-			$this->output->writeln('Unknown value');
+			$this->output->writeln('<comment>Unknown value</comment>');
 		}
-
 
 		return '';
 	}

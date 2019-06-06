@@ -31,6 +31,7 @@ declare(strict_types=1);
 namespace daita\NcSmallPhpTools\Service;
 
 
+use daita\NcSmallPhpTools\Exceptions\ShellConfirmationException;
 use daita\NcSmallPhpTools\Exceptions\ShellMissingItemException;
 use daita\NcSmallPhpTools\Exceptions\ShellUnknownCommandException;
 use daita\NcSmallPhpTools\Exceptions\ShellUnknownItemException;
@@ -40,6 +41,7 @@ use OC\Core\Command\Base;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
 
@@ -212,6 +214,17 @@ class InteractiveShell {
 		}
 
 		$root = $newRoot;
+	}
+
+
+	/**
+	 * @throws ShellConfirmationException
+	 */
+	public function confirming() {
+		$confirm = new ConfirmationQuestion('Continue with this action?', false);
+		if (!$this->helper->ask($this->input, $this->output, $confirm)) {
+			throw new ShellConfirmationException();
+		}
 	}
 
 

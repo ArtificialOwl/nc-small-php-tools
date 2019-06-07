@@ -31,7 +31,9 @@ declare(strict_types=1);
 namespace daita\NcSmallPhpTools;
 
 
+use DateTime;
 use Exception;
+use OCP\DB\QueryBuilder\ICompositeExpression;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 
 
@@ -91,6 +93,93 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @throws Exception
 	 */
 	public function limitToCreation(int $delay = 0): IExtendedQueryBuilder;
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $cs
+	 * @param string $alias
+	 */
+	public function limitToDBField(string $field, string $value, bool $cs = true, string $alias = ''
+	): void;
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $cs
+	 * @param string $alias
+	 *
+	 * @return string
+	 */
+	public function exprLimitToDBField(
+		string $field, string $value, bool $cs = true, string $alias = ''
+	): string;
+
+
+	/**
+	 * @param string $field
+	 * @param array $values
+	 * @param bool $cs
+	 * @param string $alias
+	 */
+	public function limitToDBFieldArray(
+		string $field, array $values, bool $cs = true, string $alias = ''
+	): void;
+
+
+	/**
+	 * @param string $field
+	 * @param array $values
+	 * @param bool $cs
+	 * @param string $alias
+	 *
+	 * @return ICompositeExpression
+	 */
+	public function exprLimitToDBFieldArray(
+		string $field, array $values, bool $cs = true, string $alias = ''
+	): ICompositeExpression;
+
+
+	/**
+	 * @param string $field
+	 * @param int $value
+	 * @param string $alias
+	 */
+	public function limitToDBFieldInt(string $field, int $value, string $alias = ''): void;
+
+
+	/**
+	 * @param string $field
+	 * @param int $value
+	 * @param string $alias
+	 *
+	 * @return string
+	 */
+	public function exprLimitToDBFieldInt(string $field, int $value, string $alias = ''): string;
+
+
+	/**
+	 * @param string $field
+	 */
+	public function limitToDBFieldEmpty(string $field): void;
+
+
+	/**
+	 * @param string $field
+	 * @param DateTime $date
+	 * @param bool $orNull
+	 */
+	public function limitToDBFieldDateTime(string $field, DateTime $date, bool $orNull = false
+	): void;
+
+
+	/**
+	 * @param int $timestamp
+	 * @param string $field
+	 */
+	public function limitToSince(int $timestamp, string $field): void;
 
 }
 

@@ -138,14 +138,19 @@ class InteractiveShell {
 					}
 				}
 			} catch (ShellMissingItemException $e) {
-				$this->output->writeln('<comment>' . $command . '</comment>: missing item(s)');
+				$more = ($e->getMessage()) ? ' - ' . $e->getMessage() : '';
+				$this->output->writeln(
+					'<comment>' . $command . '</comment>: missing item(s)' . $more
+				);
 			} catch (ShellUnknownItemException $e) {
-				$this->output->writeln('<comment>' . $current . '</comment>: unknown item');
+				$more = ($e->getMessage()) ? ' - ' . $e->getMessage() : '';
+				$this->output->writeln('<comment>' . $current . '</comment>: unknown item' . $more);
 			} catch (ShellUnknownCommandException $e) {
-				$this->output->writeln('<comment>' . $command . '</comment>: command not found');
-//				$this->output->writeln('<comment>Use \'?\' to list available commands</comment>');
+				$more = ($e->getMessage()) ? ' - ' . $e->getMessage() : '';
+				$this->output->writeln(
+					'<comment>' . $command . '</comment>: command not found' . $more
+				);
 			}
-//			$this->output->writeln('');
 		}
 	}
 
@@ -255,7 +260,7 @@ class InteractiveShell {
 	 */
 	public function confirming(string $action = 'Continue with this action?', bool $default = false
 	) {
-		$confirm = new ConfirmationQuestion($action, $default);
+		$confirm = new ConfirmationQuestion(trim($action) . ' ', $default);
 		if (!$this->helper->ask($this->input, $this->output, $confirm)) {
 			throw new ShellConfirmationException();
 		}

@@ -141,7 +141,8 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	public function limitToDBField(
 		string $field, string $value, bool $cs = true, string $alias = ''
 	): void {
-		$expr = $this->exprLimitToDBField($field, $value, $cs, $alias);
+		$expr = $this->exprLimitToDBField($field, $value, true, $cs, $alias);
+
 		$this->andWhere($expr);
 	}
 
@@ -149,13 +150,27 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	/**
 	 * @param string $field
 	 * @param string $value
+	 * @param bool $cs - case sensitive
+	 * @param string $alias
+	 */
+	public function filterDBField(string $field, string $value, bool $cs = true, string $alias = ''
+	): void {
+		$expr = $this->exprLimitToDBField($field, $value, false, $cs, $alias);
+		$this->andWhere($expr);
+	}
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $eq
 	 * @param bool $cs
 	 * @param string $alias
 	 *
 	 * @return string
 	 */
 	public function exprLimitToDBField(
-		string $field, string $value, bool $cs = true, string $alias = ''
+		string $field, string $value, bool $eq = true, bool $cs = true, string $alias = ''
 	): string {
 		$expr = $this->expr();
 
@@ -165,12 +180,17 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 		}
 		$field = $pf . $field;
 
+		$comp = 'eq';
+		if ($eq === false) {
+			$comp = 'neq';
+		}
+
 		if ($cs) {
-			return $expr->eq($field, $this->createNamedParameter($value));
+			return $expr->$comp($field, $this->createNamedParameter($value));
 		} else {
 			$func = $this->func();
 
-			return $expr->eq(
+			return $expr->$comp(
 				$func->lower($field), $func->lower($this->createNamedParameter($value))
 			);
 		}
@@ -186,7 +206,21 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	public function limitToDBFieldArray(
 		string $field, array $values, bool $cs = true, string $alias = ''
 	): void {
-		$expr = $this->exprLimitToDBFieldArray($field, $values, $cs, $alias);
+		$expr = $this->exprLimitToDBFieldArray($field, $values, true, $cs, $alias);
+		$this->andWhere($expr);
+	}
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $cs - case sensitive
+	 * @param string $alias
+	 */
+	public function filterDBFieldArray(
+		string $field, string $value, bool $cs = true, string $alias = ''
+	): void {
+		$expr = $this->exprLimitToDBField($field, $value, false, $cs, $alias);
 		$this->andWhere($expr);
 	}
 
@@ -194,13 +228,14 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	/**
 	 * @param string $field
 	 * @param array $values
+	 * @param bool $eq
 	 * @param bool $cs
 	 * @param string $alias
 	 *
 	 * @return ICompositeExpression
 	 */
 	public function exprLimitToDBFieldArray(
-		string $field, array $values, bool $cs = true, string $alias = ''
+		string $field, array $values, bool $eq = true, bool $cs = true, string $alias = ''
 	): ICompositeExpression {
 		$expr = $this->expr();
 
@@ -211,21 +246,27 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 		$field = $pf . $field;
 
 		$func = $this->func();
-		$orX = $expr->orX();
+		if ($eq === false) {
+			$comp = 'neq';
+			$junc = $expr->andX();
+		} else {
+			$comp = 'eq';
+			$junc = $expr->orX();
+		}
 
 		foreach ($values as $value) {
 			if ($cs) {
-				$orX->add($expr->eq($field, $this->createNamedParameter($value)));
+				$junc->add($expr->$comp($field, $this->createNamedParameter($value)));
 			} else {
-				$orX->add(
-					$expr->eq(
+				$junc->add(
+					$expr->$comp(
 						$func->lower($field), $func->lower($this->createNamedParameter($value))
 					)
 				);
 			}
 		}
 
-		return $orX;
+		return $junc;
 	}
 
 
@@ -235,7 +276,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param string $alias
 	 */
 	public function limitToDBFieldInt(string $field, int $value, string $alias = ''): void {
-		$expr = $this->exprLimitToDBFieldInt($field, $value, $alias);
+		$expr = $this->exprLimitToDBFieldInt($field, $value, $alias, true);
 		$this->andWhere($expr);
 	}
 
@@ -244,10 +285,24 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param string $field
 	 * @param int $value
 	 * @param string $alias
+	 */
+	public function filterDBFieldInt(string $field, int $value, string $alias = ''): void {
+		$expr = $this->exprLimitToDBFieldInt($field, $value, $alias, false);
+		$this->andWhere($expr);
+	}
+
+
+	/**
+	 * @param string $field
+	 * @param int $value
+	 * @param string $alias
+	 * @param bool $eq
 	 *
 	 * @return string
 	 */
-	public function exprLimitToDBFieldInt(string $field, int $value, string $alias = ''): string {
+	public function exprLimitToDBFieldInt(
+		string $field, int $value, string $alias = '', bool $eq = true
+	): string {
 		$expr = $this->expr();
 
 		$pf = '';
@@ -256,7 +311,12 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 		}
 		$field = $pf . $field;
 
-		return $expr->eq($field, $this->createNamedParameter($value));
+		$comp = 'eq';
+		if ($eq === false) {
+			$comp = 'neq';
+		}
+
+		return $expr->$comp($field, $this->createNamedParameter($value));
 	}
 
 
@@ -271,6 +331,20 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 		$field = $pf . $field;
 
 		$this->andWhere($expr->eq($field, $this->createNamedParameter('')));
+	}
+
+
+	/**
+	 * @param string $field
+	 */
+	public function filterDBFieldEmpty(string $field): void {
+		$expr = $this->expr();
+		$pf =
+			($this->getType() === DBALQueryBuilder::SELECT) ? $this->getDefaultSelectAlias()
+															  . '.' : '';
+		$field = $pf . $field;
+
+		$this->andWhere($expr->neq($field, $this->createNamedParameter('')));
 	}
 
 
@@ -329,7 +403,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param string $field
 	 * @param string $value
 	 */
-	protected function searchInDBField(string $field, string $value): void {
+	public function searchInDBField(string $field, string $value): void {
 		$expr = $this->expr();
 
 		$pf = ($this->getType() === DBALQueryBuilder::SELECT) ? $this->getDefaultSelectAlias()

@@ -37,6 +37,11 @@ use OCP\DB\QueryBuilder\ICompositeExpression;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 
 
+/**
+ * Interface IExtendedQueryBuilder
+ *
+ * @package daita\NcSmallPhpTools
+ */
 interface IExtendedQueryBuilder extends IQueryBuilder {
 
 
@@ -111,10 +116,23 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param bool $cs
 	 * @param string $alias
 	 *
+	 * @return mixed
+	 */
+	public function filterDBField(string $field, string $value, bool $cs = true, string $alias = ''
+	): void;
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $eq
+	 * @param bool $cs
+	 * @param string $alias
+	 *
 	 * @return string
 	 */
 	public function exprLimitToDBField(
-		string $field, string $value, bool $cs = true, string $alias = ''
+		string $field, string $value, bool $eq = true, bool $cs = true, string $alias = ''
 	): string;
 
 
@@ -126,6 +144,19 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 */
 	public function limitToDBFieldArray(
 		string $field, array $values, bool $cs = true, string $alias = ''
+	): void;
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $cs
+	 * @param string $alias
+	 *
+	 * @return mixed
+	 */
+	public function filterDBFieldArray(
+		string $field, string $value, bool $cs = true, string $alias = ''
 	): void;
 
 
@@ -155,6 +186,16 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param int $value
 	 * @param string $alias
 	 *
+	 * @return mixed
+	 */
+	public function filterDBFieldInt(string $field, int $value, string $alias = ''): void;
+
+
+	/**
+	 * @param string $field
+	 * @param int $value
+	 * @param string $alias
+	 *
 	 * @return string
 	 */
 	public function exprLimitToDBFieldInt(string $field, int $value, string $alias = ''): string;
@@ -164,6 +205,14 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param string $field
 	 */
 	public function limitToDBFieldEmpty(string $field): void;
+
+
+	/**
+	 * @param string $field
+	 *
+	 * @return mixed
+	 */
+	public function filterDBFieldEmpty(string $field): void;
 
 
 	/**
@@ -180,6 +229,15 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param string $field
 	 */
 	public function limitToSince(int $timestamp, string $field): void;
+
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 *
+	 * @return mixed
+	 */
+	public function searchInDBField(string $field, string $value): void;
 
 }
 

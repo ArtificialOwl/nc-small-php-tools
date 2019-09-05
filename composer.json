@@ -2,7 +2,7 @@
   "name": "daita/nc-small-php-tools",
   "description": "Nextcloud: Small PHP Tools",
   "license": "AGPL-3.0-or-later",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "authors": [
     {
       "name": "Maxence Lange",

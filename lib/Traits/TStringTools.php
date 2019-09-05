@@ -31,6 +31,8 @@ declare(strict_types=1);
 namespace daita\NcSmallPhpTools\Traits;
 
 
+use Exception;
+
 /**
  * Trait TStringTools
  *
@@ -62,6 +64,25 @@ trait TStringTools {
 		}
 
 		return $uuid;
+	}
+
+
+	/**
+	 * @param int $length
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
+	protected function rand(int $length = 16): string {
+		$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
+
+		$token = '';
+		$charsLen = strlen($chars);
+		for ($i = 0; $i < $length; $i++) {
+			$token .= $chars[random_int(0, $charsLen)];
+		}
+
+		return $token;
 	}
 
 

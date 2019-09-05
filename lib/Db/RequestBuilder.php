@@ -47,7 +47,7 @@ class RequestBuilder {
 
 
 	/** @var string */
-	protected $defaultSelectAlias;
+	protected $defaultSelectAlias = '';
 
 
 	/**

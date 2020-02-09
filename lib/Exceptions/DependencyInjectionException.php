@@ -38,7 +38,7 @@ use Exception;
  *
  * @package daita\NcSmallPhpTools\Exceptions
  */
-class ArrayNotFoundException extends Exception {
+class DependencyInjectionException extends Exception {
 
 }
 

@@ -27,18 +27,27 @@
  */
 
 
-namespace daita\NcSmallPhpTools\Exceptions;
-
-
-use Exception;
+namespace daita\NcSmallPhpTools\Traits;
 
 
 /**
- * Class ArrayNotFoundException
+ * Trait TFileTools
  *
- * @package daita\NcSmallPhpTools\Exceptions
+ * @package daita\NcSmallPhpTools\Traits
  */
-class ArrayNotFoundException extends Exception {
+trait TFileTools {
+
+	/**
+	 * @param $stream
+	 *
+	 * @return string
+	 */
+	protected function getChecksumFromStream($stream): string {
+		$ctx = hash_init('md5');
+		hash_update_stream($ctx, $stream);
+
+		return hash_final($ctx);
+	}
 
 }
 

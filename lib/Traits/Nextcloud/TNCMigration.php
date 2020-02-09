@@ -27,18 +27,39 @@
  */
 
 
-namespace daita\NcSmallPhpTools\Exceptions;
-
-
-use Exception;
+namespace daita\NcSmallPhpTools\Traits\Nextcloud;
 
 
 /**
- * Class ArrayNotFoundException
+ * Class TNCMigration
  *
- * @package daita\NcSmallPhpTools\Exceptions
+ * @package daita\NcSmallPhpTools\Db
  */
-class ArrayNotFoundException extends Exception {
+trait TNCMigration {
+
+
+	protected function copyTable($orig, $dest): void {
+		$connection = \OC::$server->getDatabaseConnection();
+		$qb = $connection->getQueryBuilder();
+
+		$qb->select('*')
+		   ->from($orig);
+
+		$result = $qb->execute();
+		while ($row = $result->fetch()) {
+
+			$copy = $connection->getQueryBuilder();
+			$copy->insert($dest);
+			$ak = array_keys($row);
+			foreach ($ak as $k) {
+				if ($row[$k] !== null) {
+					$copy->setValue($k, $copy->createNamedParameter($row[$k]));
+				}
+			}
+			$copy->execute();
+		}
+
+	}
 
 }
 

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
@@ -9,7 +8,7 @@ declare(strict_types=1);
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -55,7 +54,7 @@ class Options {
 	 *
 	 * @return Options
 	 */
-	public function setOption(string $key, string $value): Options {
+	public function setOption(string $key, string $value): self {
 		$this->options[$key] = $value;
 
 		return $this;
@@ -78,7 +77,7 @@ class Options {
 	 *
 	 * @return Options
 	 */
-	public function setOptionInt(string $key, int $value): Options {
+	public function setOptionInt(string $key, int $value): self {
 		$this->options[$key] = $value;
 
 		return $this;
@@ -101,7 +100,7 @@ class Options {
 	 *
 	 * @return Options
 	 */
-	public function setOptionFloat(string $key, float $value): Options {
+	public function setOptionFloat(string $key, float $value): self {
 		$this->options[$key] = $value;
 
 		return $this;
@@ -124,7 +123,7 @@ class Options {
 	 *
 	 * @return Options
 	 */
-	public function setOptionArray(string $key, array $value): Options {
+	public function setOptionArray(string $key, array $value): self {
 		$this->options[$key] = $value;
 
 		return $this;
@@ -147,7 +146,7 @@ class Options {
 	 *
 	 * @return Options
 	 */
-	public function setOptionBool(string $key, bool $value): Options {
+	public function setOptionBool(string $key, bool $value): self {
 		$this->options[$key] = $value;
 
 		return $this;

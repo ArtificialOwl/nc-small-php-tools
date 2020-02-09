@@ -1,15 +1,14 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud.
+ * Some small tools for Nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -47,7 +46,7 @@ class RequestBuilder {
 
 
 	/** @var string */
-	protected $defaultSelectAlias = '';
+	protected $defaultSelectAlias;
 
 
 	/**
@@ -56,7 +55,7 @@ class RequestBuilder {
 	 * @param IQueryBuilder $qb
 	 * @param int $id
 	 */
-	protected function limitToId(IQueryBuilder &$qb, int $id) {
+	protected function limitToId(IQueryBuilder &$qb, int $id): void {
 		$this->limitToDBFieldInt($qb, 'id', $id);
 	}
 
@@ -67,7 +66,7 @@ class RequestBuilder {
 	 * @param IQueryBuilder $qb
 	 * @param string $id
 	 */
-	protected function limitToIdString(IQueryBuilder &$qb, string $id) {
+	protected function limitToIdString(IQueryBuilder &$qb, string $id): void {
 		$this->limitToDBField($qb, 'id', $id, false);
 	}
 
@@ -78,7 +77,7 @@ class RequestBuilder {
 	 * @param IQueryBuilder $qb
 	 * @param string $userId
 	 */
-	protected function limitToUserId(IQueryBuilder &$qb, string $userId) {
+	protected function limitToUserId(IQueryBuilder &$qb, string $userId): void {
 		$this->limitToDBField($qb, 'user_id', $userId, false);
 	}
 
@@ -91,7 +90,7 @@ class RequestBuilder {
 	 *
 	 * @throws Exception
 	 */
-	protected function limitToCreation(IQueryBuilder &$qb, int $delay = 0) {
+	protected function limitToCreation(IQueryBuilder &$qb, int $delay = 0): void {
 		$date = new DateTime('now');
 		$date->sub(new DateInterval('PT' . $delay . 'M'));
 
@@ -108,8 +107,8 @@ class RequestBuilder {
 	 */
 	protected function limitToDBField(
 		IQueryBuilder &$qb, string $field, string $value, bool $cs = true, string $alias = ''
-	) {
-		$expr = $this->exprLimitToDBField($qb, $field, $value, $cs, $alias);
+	): void {
+		$expr = $this->exprLimitToDBField($qb, $field, $value, true, $cs, $alias);
 		$qb->andWhere($expr);
 	}
 
@@ -118,13 +117,29 @@ class RequestBuilder {
 	 * @param IQueryBuilder $qb
 	 * @param string $field
 	 * @param string $value
+	 * @param bool $cs - case sensitive
+	 * @param string $alias
+	 */
+	protected function filterDBField(
+		IQueryBuilder &$qb, string $field, string $value, bool $cs = true, string $alias = ''
+	): void {
+		$expr = $this->exprLimitToDBField($qb, $field, $value, false, $cs, $alias);
+		$qb->andWhere($expr);
+	}
+
+
+	/**
+	 * @param IQueryBuilder $qb
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $eq
 	 * @param bool $cs
 	 * @param string $alias
 	 *
 	 * @return string
 	 */
 	protected function exprLimitToDBField(
-		IQueryBuilder &$qb, string $field, string $value, bool $cs = true, string $alias = ''
+		IQueryBuilder &$qb, string $field, string $value, bool $eq = true, bool $cs = true, string $alias = ''
 	): string {
 		$expr = $qb->expr();
 
@@ -134,12 +149,19 @@ class RequestBuilder {
 		}
 		$field = $pf . $field;
 
+		$comp = 'eq';
+		if ($eq === false) {
+			$comp = 'neq';
+		}
+
 		if ($cs) {
-			return $expr->eq($field, $qb->createNamedParameter($value));
+			return $expr->$comp($field, $qb->createNamedParameter($value));
 		} else {
 			$func = $qb->func();
 
-			return $expr->eq($func->lower($field), $func->lower($qb->createNamedParameter($value)));
+			return $expr->$comp(
+				$func->lower($field), $func->lower($qb->createNamedParameter($value))
+			);
 		}
 	}
 
@@ -150,10 +172,22 @@ class RequestBuilder {
 	 * @param int $value
 	 * @param string $alias
 	 */
-	protected function limitToDBFieldInt(
-		IQueryBuilder &$qb, string $field, int $value, string $alias = ''
-	) {
-		$expr = $this->exprLimitToDBFieldInt($qb, $field, $value, $alias);
+	protected function limitToDBFieldInt(IQueryBuilder &$qb, string $field, int $value, string $alias = ''
+	): void {
+		$expr = $this->exprLimitToDBFieldInt($qb, $field, $value, $alias, true);
+		$qb->andWhere($expr);
+	}
+
+
+	/**
+	 * @param IQueryBuilder $qb
+	 * @param string $field
+	 * @param int $value
+	 * @param string $alias
+	 */
+	protected function filterDBFieldInt(IQueryBuilder &$qb, string $field, int $value, string $alias = ''
+	): void {
+		$expr = $this->exprLimitToDBFieldInt($qb, $field, $value, $alias, false);
 		$qb->andWhere($expr);
 	}
 
@@ -164,10 +198,12 @@ class RequestBuilder {
 	 * @param int $value
 	 * @param string $alias
 	 *
+	 * @param bool $eq
+	 *
 	 * @return string
 	 */
 	protected function exprLimitToDBFieldInt(
-		IQueryBuilder &$qb, string $field, int $value, string $alias = ''
+		IQueryBuilder &$qb, string $field, int $value, string $alias = '', bool $eq = true
 	): string {
 		$expr = $qb->expr();
 
@@ -177,7 +213,12 @@ class RequestBuilder {
 		}
 		$field = $pf . $field;
 
-		return $expr->eq($field, $qb->createNamedParameter($value));
+		$comp = 'eq';
+		if ($eq === false) {
+			$comp = 'neq';
+		}
+
+		return $expr->$comp($field, $qb->createNamedParameter($value));
 	}
 
 
@@ -185,7 +226,7 @@ class RequestBuilder {
 	 * @param IQueryBuilder $qb
 	 * @param string $field
 	 */
-	protected function limitToDBFieldEmpty(IQueryBuilder &$qb, string $field) {
+	protected function limitToDBFieldEmpty(IQueryBuilder &$qb, string $field): void {
 		$expr = $qb->expr();
 		$pf = ($qb->getType() === QueryBuilder::SELECT) ? $this->defaultSelectAlias . '.' : '';
 		$field = $pf . $field;
@@ -197,12 +238,23 @@ class RequestBuilder {
 	/**
 	 * @param IQueryBuilder $qb
 	 * @param string $field
+	 */
+	protected function filterDBFieldEmpty(IQueryBuilder &$qb, string $field): void {
+		$expr = $qb->expr();
+		$pf = ($qb->getType() === QueryBuilder::SELECT) ? $this->defaultSelectAlias . '.' : '';
+		$field = $pf . $field;
+
+		$qb->andWhere($expr->neq($field, $qb->createNamedParameter('')));
+	}
+
+
+	/**
+	 * @param IQueryBuilder $qb
+	 * @param string $field
 	 * @param DateTime $date
 	 * @param bool $orNull
 	 */
-	protected function limitToDBFieldDateTime(
-		IQueryBuilder &$qb, string $field, DateTime $date, bool $orNull = false
-	) {
+	protected function limitToDBFieldDateTime(IQueryBuilder &$qb, string $field, DateTime $date, bool $orNull = false): void {
 		$expr = $qb->expr();
 		$pf = ($qb->getType() === QueryBuilder::SELECT) ? $this->defaultSelectAlias . '.' : '';
 		$field = $pf . $field;
@@ -225,7 +277,7 @@ class RequestBuilder {
 	 *
 	 * @throws Exception
 	 */
-	protected function limitToSince(IQueryBuilder $qb, int $timestamp, string $field) {
+	protected function limitToSince(IQueryBuilder $qb, int $timestamp, string $field): void {
 		$dTime = new DateTime();
 		$dTime->setTimestamp($timestamp);
 
@@ -245,7 +297,7 @@ class RequestBuilder {
 	 * @param string $field
 	 * @param array $values
 	 */
-	protected function limitToDBFieldArray(IQueryBuilder &$qb, string $field, array $values) {
+	protected function limitToDBFieldArray(IQueryBuilder &$qb, string $field, array $values): void {
 		$expr = $qb->expr();
 		$pf = ($qb->getType() === QueryBuilder::SELECT) ? $this->defaultSelectAlias . '.' : '';
 		$field = $pf . $field;
@@ -268,7 +320,7 @@ class RequestBuilder {
 	 * @param string $field
 	 * @param string $value
 	 */
-	protected function searchInDBField(IQueryBuilder &$qb, string $field, string $value) {
+	protected function searchInDBField(IQueryBuilder &$qb, string $field, string $value): void {
 		$expr = $qb->expr();
 
 		$pf = ($qb->getType() === QueryBuilder::SELECT) ? $this->defaultSelectAlias . '.' : '';

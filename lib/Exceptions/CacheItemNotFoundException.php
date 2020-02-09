@@ -34,11 +34,11 @@ use Exception;
 
 
 /**
- * Class ArrayNotFoundException
+ * Class CacheItemNotFoundException
  *
  * @package daita\NcSmallPhpTools\Exceptions
  */
-class ArrayNotFoundException extends Exception {
+class CacheItemNotFoundException extends Exception {
 
 }
 

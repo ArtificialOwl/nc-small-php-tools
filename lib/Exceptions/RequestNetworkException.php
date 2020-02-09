@@ -34,11 +34,11 @@ use Exception;
 
 
 /**
- * Class ArrayNotFoundException
+ * Class RequestNetworkException
  *
  * @package daita\NcSmallPhpTools\Exceptions
  */
-class ArrayNotFoundException extends Exception {
+class RequestNetworkException extends Exception {
 
 }
 

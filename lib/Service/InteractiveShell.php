@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
@@ -9,7 +8,7 @@ declare(strict_types=1);
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -101,7 +100,7 @@ class InteractiveShell {
 	/**
 	 * @param string $prompt
 	 */
-	public function run(string $prompt = '%PATH%>') {
+	public function run(string $prompt = '%PATH%>'): void {
 
 		$path = '';
 		while (true) {
@@ -188,7 +187,7 @@ class InteractiveShell {
 	/**
 	 * @param array $commands
 	 */
-	private function listCurrentAvailableCommands(array $commands) {
+	private function listCurrentAvailableCommands(array $commands): void {
 		foreach ($commands as $command) {
 			if (strpos($command, ' ') === false) {
 				$this->output->writeln('<info>' . $command . '</info>');
@@ -202,7 +201,7 @@ class InteractiveShell {
 	 * @param array $root
 	 * @param string $sub
 	 */
-	private function parseSubCommand(array &$commands, array &$root, string $sub) {
+	private function parseSubCommand(array &$commands, array &$root, string $sub): void {
 
 		if (substr($sub, 0, 1) === '?') {
 			list($source, $field) = explode('_', substr($sub, 1));
@@ -259,7 +258,7 @@ class InteractiveShell {
 	 * @throws ShellConfirmationException
 	 */
 	public function confirming(string $action = 'Continue with this action?', bool $default = false
-	) {
+	): void {
 		$confirm = new ConfirmationQuestion(trim($action) . ' ', $default);
 		if (!$this->helper->ask($this->input, $this->output, $confirm)) {
 			throw new ShellConfirmationException();

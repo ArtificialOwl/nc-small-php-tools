@@ -1,15 +1,14 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud.
+ * Some small tools for Nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,7 +30,10 @@ declare(strict_types=1);
 namespace daita\NcSmallPhpTools\Db;
 
 
+use daita\NcSmallPhpTools\Exceptions\DateTimeException;
+use daita\NcSmallPhpTools\Exceptions\RowNotFoundException;
 use daita\NcSmallPhpTools\IExtendedQueryBuilder;
+use daita\NcSmallPhpTools\IQueryRow;
 use DateInterval;
 use DateTime;
 use Doctrine\DBAL\Query\QueryBuilder as DBALQueryBuilder;
@@ -42,7 +44,7 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 
 
 /**
- * Class RequestQueryBuilder
+ * Class ExtendedQueryBuilder
  *
  * @package daita\NcSmallPhpTools\Db
  */
@@ -81,6 +83,18 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 */
 	public function limitToId(int $id): IExtendedQueryBuilder {
 		$this->limitToDBFieldInt('id', $id);
+
+		return $this;
+	}
+
+
+	/**
+	 * @param array $ids
+	 *
+	 * @return IExtendedQueryBuilder
+	 */
+	public function limitToIds(array $ids): IExtendedQueryBuilder {
+		$this->limitToDBFieldArray('id', $ids);
 
 		return $this;
 	}
@@ -138,9 +152,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param bool $cs - case sensitive
 	 * @param string $alias
 	 */
-	public function limitToDBField(
-		string $field, string $value, bool $cs = true, string $alias = ''
-	): void {
+	public function limitToDBField(string $field, string $value, bool $cs = true, string $alias = ''): void {
 		$expr = $this->exprLimitToDBField($field, $value, true, $cs, $alias);
 
 		$this->andWhere($expr);
@@ -153,8 +165,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param bool $cs - case sensitive
 	 * @param string $alias
 	 */
-	public function filterDBField(string $field, string $value, bool $cs = true, string $alias = ''
-	): void {
+	public function filterDBField(string $field, string $value, bool $cs = true, string $alias = ''): void {
 		$expr = $this->exprLimitToDBField($field, $value, false, $cs, $alias);
 		$this->andWhere($expr);
 	}
@@ -203,8 +214,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param bool $cs - case sensitive
 	 * @param string $alias
 	 */
-	public function limitToDBFieldArray(
-		string $field, array $values, bool $cs = true, string $alias = ''
+	public function limitToDBFieldArray(string $field, array $values, bool $cs = true, string $alias = ''
 	): void {
 		$expr = $this->exprLimitToDBFieldArray($field, $values, true, $cs, $alias);
 		$this->andWhere($expr);
@@ -217,8 +227,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param bool $cs - case sensitive
 	 * @param string $alias
 	 */
-	public function filterDBFieldArray(
-		string $field, string $value, bool $cs = true, string $alias = ''
+	public function filterDBFieldArray(string $field, string $value, bool $cs = true, string $alias = ''
 	): void {
 		$expr = $this->exprLimitToDBField($field, $value, false, $cs, $alias);
 		$this->andWhere($expr);
@@ -234,9 +243,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 *
 	 * @return ICompositeExpression
 	 */
-	public function exprLimitToDBFieldArray(
-		string $field, array $values, bool $eq = true, bool $cs = true, string $alias = ''
-	): ICompositeExpression {
+	public function exprLimitToDBFieldArray(string $field, array $values, bool $eq = true, bool $cs = true, string $alias = ''): ICompositeExpression {
 		$expr = $this->expr();
 
 		$pf = '';
@@ -300,8 +307,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 *
 	 * @return string
 	 */
-	public function exprLimitToDBFieldInt(
-		string $field, int $value, string $alias = '', bool $eq = true
+	public function exprLimitToDBFieldInt(string $field, int $value, string $alias = '', bool $eq = true
 	): string {
 		$expr = $this->expr();
 
@@ -353,8 +359,7 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param DateTime $date
 	 * @param bool $orNull
 	 */
-	public function limitToDBFieldDateTime(string $field, DateTime $date, bool $orNull = false
-	): void {
+	public function limitToDBFieldDateTime(string $field, DateTime $date, bool $orNull = false): void {
 		$expr = $this->expr();
 		$pf =
 			($this->getType() === DBALQueryBuilder::SELECT) ? $this->getDefaultSelectAlias()
@@ -378,16 +383,18 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 	 * @param int $timestamp
 	 * @param string $field
 	 *
-	 * @throws Exception
+	 * @throws DateTimeException
 	 */
 	public function limitToSince(int $timestamp, string $field): void {
-		$dTime = new DateTime();
-		$dTime->setTimestamp($timestamp);
+		try {
+			$dTime = new DateTime();
+			$dTime->setTimestamp($timestamp);
+		} catch (Exception $e) {
+			throw new DateTimeException($e->getMessage());
+		}
 
 		$expr = $this->expr();
-		$pf =
-			($this->getType() === DBALQueryBuilder::SELECT) ? $this->getDefaultSelectAlias()
-															  . '.' : '';
+		$pf = ($this->getType() === DBALQueryBuilder::SELECT) ? $this->getDefaultSelectAlias() . '.' : '';
 		$field = $pf . $field;
 
 		$orX = $expr->orX();
@@ -411,6 +418,100 @@ class ExtendedQueryBuilder extends QueryBuilder implements IExtendedQueryBuilder
 		$field = $pf . $field;
 
 		$this->andWhere($expr->iLike($field, $this->createNamedParameter($value)));
+	}
+
+
+	/**
+	 * @param IQueryBuilder $qb
+	 * @param string $field
+	 * @param string $fieldRight
+	 * @param string $alias
+	 *
+	 * @return string
+	 */
+	public function exprFieldWithinJsonFormat(IQueryBuilder $qb, string $field, string $fieldRight, string $alias = ''): void {
+		$func = $qb->func();
+		$expr = $qb->expr();
+
+		if ($alias === '') {
+			$alias = $this->defaultSelectAlias;
+		}
+
+		$concat = $func->concat(
+			$qb->createNamedParameter('%"'),
+			$func->concat($fieldRight, $qb->createNamedParameter('"%'))
+		);
+
+		return $expr->iLike($alias . '.' . $field, $concat);
+	}
+
+
+	/**
+	 * @param IQueryBuilder $qb
+	 * @param string $field
+	 * @param string $value
+	 * @param bool $eq (eq, not eq)
+	 * @param bool $cs (case sensitive, or not)
+	 *
+	 * @return string
+	 */
+	public function exprValueWithinJsonFormat(
+		IQueryBuilder $qb, string $field, string $value, bool $eq = true, bool $cs = true
+	): string {
+		$dbConn = $this->getConnection();
+		$expr = $qb->expr();
+		$func = $qb->func();
+
+		$value = $dbConn->escapeLikeParameter($value);
+		if ($cs) {
+			$field = $func->lower($field);
+			$value = $func->lower($value);
+		}
+
+		$comp = 'iLike';
+		if ($eq) {
+			$comp = 'notLike';
+		}
+
+		return $expr->$comp($field, $qb->createNamedParameter('%"' . $value . '"%'));
+	}
+
+
+	/**
+	 * @param callable $method
+	 *
+	 * @return IQueryRow
+	 * @throws RowNotFoundException
+	 */
+	public function getRow(callable $method): IQueryRow {
+		$cursor = $this->execute();
+		$data = $cursor->fetch();
+		$cursor->closeCursor();
+
+		if ($data === false) {
+			throw new RowNotFoundException();
+		}
+
+		return $method($data, $this);
+	}
+
+	/**
+	 * @param callable $method
+	 *
+	 * @return IQueryRow[]
+	 */
+	public function getRows(callable $method): array {
+		$rows = [];
+		$cursor = $this->execute();
+		while ($data = $cursor->fetch()) {
+			try {
+				$rows[] = $method($data, $this);
+			} catch (Exception $e) {
+			}
+		}
+		$cursor->closeCursor();
+
+		return $rows;
 	}
 
 }

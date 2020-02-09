@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
@@ -9,7 +8,7 @@ declare(strict_types=1);
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -71,7 +70,7 @@ class CacheResult {
 	 *
 	 * @return CacheResult
 	 */
-	public function setResult(array $result): CacheResult {
+	public function setResult(array $result): self {
 		$this->result = $result;
 
 		return $this;
@@ -84,7 +83,7 @@ class CacheResult {
 	 *
 	 * @return CacheResult
 	 */
-	public function set(string $value, string $stored = 'value'): CacheResult {
+	public function set(string $value, string $stored = 'value'): self {
 		$this->setResult([$stored => $value]);
 
 		return $this;
@@ -112,7 +111,7 @@ class CacheResult {
 	 *
 	 * @return CacheResult
 	 */
-	public function setArray(array $value, string $stored = 'value'): CacheResult {
+	public function setArray(array $value, string $stored = 'value'): self {
 		$this->setResult([$stored => $value]);
 
 		return $this;
@@ -140,7 +139,7 @@ class CacheResult {
 	 *
 	 * @return CacheResult
 	 */
-	public function setBool(bool $value, string $stored = 'value'): CacheResult {
+	public function setBool(bool $value, string $stored = 'value'): self {
 		$this->setResult([$stored => $value]);
 
 		return $this;
@@ -168,7 +167,7 @@ class CacheResult {
 	 *
 	 * @return CacheResult
 	 */
-	public function setInt(int $value, string $stored = 'value'): CacheResult {
+	public function setInt(int $value, string $stored = 'value'): self {
 		$this->setResult([$stored => $value]);
 
 		return $this;

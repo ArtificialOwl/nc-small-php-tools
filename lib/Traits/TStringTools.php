@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
@@ -9,7 +8,7 @@ declare(strict_types=1);
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -33,12 +32,34 @@ namespace daita\NcSmallPhpTools\Traits;
 
 use Exception;
 
+
 /**
  * Trait TStringTools
  *
  * @package daita\NcSmallPhpTools\Traits
  */
 trait TStringTools {
+
+
+	/**
+	 * @param int $length
+	 *
+	 * @return string
+	 */
+	protected function token(int $length = 15): string {
+		$chars = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890';
+
+		$str = '';
+		$max = strlen($chars);
+		for ($i = 0; $i < $length; $i++) {
+			try {
+				$str .= $chars[random_int(0, $max - 1)];
+			} catch (Exception $e) {
+			}
+		}
+
+		return $str;
+	}
 
 
 	/**
@@ -64,25 +85,6 @@ trait TStringTools {
 		}
 
 		return $uuid;
-	}
-
-
-	/**
-	 * @param int $length
-	 *
-	 * @return string
-	 * @throws Exception
-	 */
-	protected function rand(int $length = 16): string {
-		$chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890';
-
-		$token = '';
-		$charsLen = strlen($chars);
-		for ($i = 0; $i < $length; $i++) {
-			$token .= $chars[random_int(0, $charsLen)];
-		}
-
-		return $token;
 	}
 
 

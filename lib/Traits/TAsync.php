@@ -1,15 +1,14 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud.
+ * Some small tools for Nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -44,7 +43,7 @@ trait TAsync {
 	 *
 	 * @param string $result
 	 */
-	public function async(string $result = '') {
+	public function async(string $result = ''): void {
 		if (ob_get_contents() !== false) {
 			ob_end_clean();
 		}

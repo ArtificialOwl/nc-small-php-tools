@@ -1,15 +1,14 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud.
+ * Some small tools for Nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,6 +33,7 @@ namespace daita\NcSmallPhpTools\Traits;
 use daita\NcSmallPhpTools\Exceptions\ArrayNotFoundException;
 use daita\NcSmallPhpTools\Exceptions\MalformedArrayException;
 use Exception;
+use JsonSerializable;
 
 /**
  * Trait TArrayTools
@@ -190,7 +190,7 @@ trait TArrayTools {
 			return $arr[$k];
 		}
 
-		if ($arr[$k] === '1') {
+		if ($arr[$k] === '1' || strtolower($arr[$k]) === 'true') {
 			return true;
 		}
 
@@ -199,6 +199,35 @@ trait TArrayTools {
 		}
 
 		return $default;
+	}
+
+
+	/**
+	 * @param string $k
+	 * @param array $arr
+	 * @param JsonSerializable|null $default
+	 *
+	 * @return JsonSerializable|null
+	 */
+	protected function getObj(string $k, array $arr, ?JsonSerializable $default = null): ?JsonSerializable {
+		if ($arr === null) {
+			return $default;
+		}
+
+		if (!array_key_exists($k, $arr)) {
+			$subs = explode('.', $k, 2);
+			if (sizeof($subs) > 1) {
+				if (!array_key_exists($subs[0], $arr)) {
+					return $default;
+				}
+
+				return $this->getObj($subs[1], $arr[$subs[0]], $default);
+			} else {
+				return $default;
+			}
+		}
+
+		return $arr[$k];
 	}
 
 
@@ -305,10 +334,12 @@ trait TArrayTools {
 	 *
 	 * @throws MalformedArrayException
 	 */
-	protected function mustContains(array $keys, array $arr) {
+	protected function mustContains(array $keys, array $arr): void {
 		foreach ($keys as $key) {
 			if (!array_key_exists($key, $arr)) {
-				throw new MalformedArrayException();
+				throw new MalformedArrayException(
+					'source: ' . json_encode($arr) . ' - missing key: ' . $key
+				);
 			}
 		}
 	}
@@ -317,7 +348,7 @@ trait TArrayTools {
 	/**
 	 * @param array $arr
 	 */
-	protected function cleanArray(array &$arr) {
+	protected function cleanArray(array &$arr): void {
 		$arr = array_filter(
 			$arr,
 			function($v) {

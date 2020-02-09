@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
@@ -9,7 +8,7 @@ declare(strict_types=1);
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -56,6 +55,9 @@ class Request implements JsonSerializable {
 
 	/** @var string */
 	private $url = '';
+
+	/** @var string */
+	private $baseUrl = '';
 
 	/** @var int */
 	private $type = 0;
@@ -108,7 +110,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setProtocol(string $protocol): Request {
+	public function setProtocol(string $protocol): self {
 		$this->protocol = $protocol;
 
 		return $this;
@@ -127,10 +129,30 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setAddress(string $address): Request {
+	public function setAddress(string $address): self {
 		$this->address = $address;
 
 		return $this;
+	}
+
+	/**
+	 * @param string $url
+	 */
+	public function setAddressFromUrl(string $url) {
+		$protocol = parse_url($url, PHP_URL_SCHEME);
+		if ($protocol === null) {
+			if (strpos($url, '/') > -1) {
+				list($address, $baseUrl) = explode('/', $url, 2);
+				$this->setAddress($address);
+				$this->baseUrl = $baseUrl;
+			} else {
+				$this->setAddress($url);
+			}
+		} else {
+			$this->setProtocol($protocol);
+			$this->setAddress(parse_url($url, PHP_URL_HOST));
+			$this->baseUrl = parse_url($url, PHP_URL_PATH);
+		}
 	}
 
 
@@ -164,7 +186,7 @@ class Request implements JsonSerializable {
 	 * @return string
 	 */
 	public function getUrl(): string {
-		return $this->url;
+		return $this->baseUrl . $this->url;
 	}
 
 
@@ -176,7 +198,7 @@ class Request implements JsonSerializable {
 	}
 
 
-	public function addHeader($header): Request {
+	public function addHeader($header): self {
 		$this->headers[] = $header;
 
 		return $this;
@@ -195,7 +217,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setHeaders(array $headers): Request {
+	public function setHeaders(array $headers): self {
 		$this->headers = $headers;
 
 		return $this;
@@ -215,7 +237,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setData(array $data): Request {
+	public function setData(array $data): self {
 		$this->data = $data;
 
 		return $this;
@@ -227,7 +249,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setDataJson(string $data): Request {
+	public function setDataJson(string $data): self {
 		$this->setData(json_decode($data, true));
 
 		return $this;
@@ -239,7 +261,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setDataSerialize(JsonSerializable $data): Request {
+	public function setDataSerialize(JsonSerializable $data): self {
 		$this->setDataJson(json_encode($data));
 
 		return $this;
@@ -252,7 +274,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function addData(string $k, string $v): Request {
+	public function addData(string $k, string $v): self {
 		$this->data[$k] = $v;
 
 		return $this;
@@ -265,7 +287,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function addDataInt(string $k, int $v): Request {
+	public function addDataInt(string $k, int $v): self {
 		$this->data[$k] = $v;
 
 		return $this;
@@ -313,7 +335,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setTimeout(int $timeout): Request {
+	public function setTimeout(int $timeout): self {
 		$this->timeout = $timeout;
 
 		return $this;
@@ -332,7 +354,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setUserAgent(string $userAgent): Request {
+	public function setUserAgent(string $userAgent): self {
 		$this->userAgent = $userAgent;
 
 		return $this;
@@ -351,7 +373,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setResultCode(int $resultCode): Request {
+	public function setResultCode(int $resultCode): self {
 		$this->resultCode = $resultCode;
 
 		return $this;
@@ -370,7 +392,7 @@ class Request implements JsonSerializable {
 	 *
 	 * @return Request
 	 */
-	public function setContentType(string $contentType): Request {
+	public function setContentType(string $contentType): self {
 		$this->contentType = $contentType;
 
 		return $this;

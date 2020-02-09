@@ -27,18 +27,22 @@
  */
 
 
-namespace daita\NcSmallPhpTools\Exceptions;
-
-
-use Exception;
+namespace daita\NcSmallPhpTools;
 
 
 /**
- * Class ArrayNotFoundException
+ * Interface IQueryRow
  *
- * @package daita\NcSmallPhpTools\Exceptions
+ * @package daita\NcSmallPhpTools
  */
-class ArrayNotFoundException extends Exception {
+interface IQueryRow {
+
+	/**
+	 * import data to feed the model.
+	 *
+	 * @param array $data
+	 */
+	public function importFromDatabase(array $data);
 
 }
 

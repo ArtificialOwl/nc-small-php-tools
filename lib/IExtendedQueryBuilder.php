@@ -1,15 +1,14 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 
 /**
- * Some small tools for Nextcloud.
+ * Some small tools for Nextcloud
  *
  * This file is licensed under the Affero General Public License version 3 or
  * later. See the COPYING file.
  *
  * @author Maxence Lange <maxence@artificial-owl.com>
- * @copyright 2018, Maxence Lange <maxence@artificial-owl.com>
+ * @copyright 2020, Maxence Lange <maxence@artificial-owl.com>
  * @license GNU AGPL version 3 or any later version
  *
  * This program is free software: you can redistribute it and/or modify
@@ -50,7 +49,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 *
 	 * @return IExtendedQueryBuilder
 	 */
-	public function setDefaultSelectAlias(string $alias): IExtendedQueryBuilder;
+	public function setDefaultSelectAlias(string $alias): self;
 
 
 	/**
@@ -66,7 +65,17 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 *
 	 * @return IExtendedQueryBuilder
 	 */
-	public function limitToId(int $id): IExtendedQueryBuilder;
+	public function limitToId(int $id): self;
+
+
+	/**
+	 * Limit the request to Ids
+	 *
+	 * @param int[] $ids
+	 *
+	 * @return IExtendedQueryBuilder
+	 */
+	public function limitToIds(array $ids): self;
 
 
 	/**
@@ -76,7 +85,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 *
 	 * @return IExtendedQueryBuilder
 	 */
-	public function limitToIdString(string $id): IExtendedQueryBuilder;
+	public function limitToIdString(string $id): self;
 
 
 	/**
@@ -86,7 +95,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 *
 	 * @return IExtendedQueryBuilder
 	 */
-	public function limitToUserId(string $userId): IExtendedQueryBuilder;
+	public function limitToUserId(string $userId): self;
 
 
 	/**
@@ -97,7 +106,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @return IExtendedQueryBuilder
 	 * @throws Exception
 	 */
-	public function limitToCreation(int $delay = 0): IExtendedQueryBuilder;
+	public function limitToCreation(int $delay = 0): self;
 
 
 	/**
@@ -106,8 +115,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param bool $cs
 	 * @param string $alias
 	 */
-	public function limitToDBField(string $field, string $value, bool $cs = true, string $alias = ''
-	): void;
+	public function limitToDBField(string $field, string $value, bool $cs = true, string $alias = ''): void;
 
 
 	/**
@@ -118,8 +126,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 *
 	 * @return mixed
 	 */
-	public function filterDBField(string $field, string $value, bool $cs = true, string $alias = ''
-	): void;
+	public function filterDBField(string $field, string $value, bool $cs = true, string $alias = ''): void;
 
 
 	/**
@@ -142,8 +149,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param bool $cs
 	 * @param string $alias
 	 */
-	public function limitToDBFieldArray(
-		string $field, array $values, bool $cs = true, string $alias = ''
+	public function limitToDBFieldArray(string $field, array $values, bool $cs = true, string $alias = ''
 	): void;
 
 
@@ -155,14 +161,14 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 *
 	 * @return mixed
 	 */
-	public function filterDBFieldArray(
-		string $field, string $value, bool $cs = true, string $alias = ''
+	public function filterDBFieldArray(string $field, string $value, bool $cs = true, string $alias = ''
 	): void;
 
 
 	/**
 	 * @param string $field
 	 * @param array $values
+	 * @param bool $eq
 	 * @param bool $cs
 	 * @param string $alias
 	 *
@@ -220,8 +226,7 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	 * @param DateTime $date
 	 * @param bool $orNull
 	 */
-	public function limitToDBFieldDateTime(string $field, DateTime $date, bool $orNull = false
-	): void;
+	public function limitToDBFieldDateTime(string $field, DateTime $date, bool $orNull = false): void;
 
 
 	/**
@@ -234,10 +239,24 @@ interface IExtendedQueryBuilder extends IQueryBuilder {
 	/**
 	 * @param string $field
 	 * @param string $value
-	 *
-	 * @return mixed
 	 */
 	public function searchInDBField(string $field, string $value): void;
+
+
+	/**
+	 * @param callable $method
+	 *
+	 * @return IQueryRow
+	 */
+	public function getRow(callable $method): IQueryRow;
+
+
+	/**
+	 * @param callable $method
+	 *
+	 * @return array
+	 */
+	public function getRows(callable $method): array;
 
 }
 
